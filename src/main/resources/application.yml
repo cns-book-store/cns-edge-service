@@ -21,6 +21,10 @@ spring:
           predicates:
             - Path=/books/**
           filters:
+            - name: CircuitBreaker
+              args:
+                name: catalogCircuitBreaker
+                fallbackUri: forward:/catalog-fallback
             - RewritePath=/(?<segment>/?.*), /api/v1/$\{segment}
         - id: order-route
           uri: ${ORDER_SERVICE_URL:http://localhost:9002}
@@ -28,6 +32,9 @@ spring:
             - Path=/orders/**
           filters:
             - RewritePath=/(?<segment>/?.*), /api/v1/$\{segment}
+            - name: CircuitBreaker
+              args:
+                name: orderCircuitBreaker
 
       default-filters:
         - name: Retry
@@ -48,8 +55,22 @@ spring:
   lifecycle:
     timeout-per-shutdown-phase: 15s
 
+
 logging:
   level:
     inc.evil: debug
     org.springframework.cloud.gateway: debug
     org.zalando.logbook: trace
+    io.github.resilience4j: DEBUG
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        sliding-window-size: 20
+        permitted-number-of-calls-in-half-open-state: 5
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 15000
+  timelimiter:
+    configs:
+      default:
+        timeout-duration: 5s

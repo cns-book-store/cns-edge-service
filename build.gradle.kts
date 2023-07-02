@@ -17,6 +17,7 @@ extra["springCloudVersion"] = "2022.0.3"
 dependencies {
 	implementation("org.springframework.cloud:spring-cloud-starter-gateway")
 	implementation("org.zalando:logbook-spring-boot-webflux-autoconfigure:3.0.0")
+	implementation("org.springframework.cloud:spring-cloud-starter-circuitbreaker-reactor-resilience4j")
 	implementation("org.zalando:logbook-netty:3.0.0")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 }
