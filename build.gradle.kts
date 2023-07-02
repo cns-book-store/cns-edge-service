@@ -20,6 +20,7 @@ dependencies {
 	implementation("org.springframework.cloud:spring-cloud-starter-circuitbreaker-reactor-resilience4j")
 	implementation("org.springframework.boot:spring-boot-starter-data-redis-reactive")
 	implementation("org.springframework.session:spring-session-data-redis")
+	implementation("org.springframework.cloud:spring-cloud-starter-config")
 	implementation("org.zalando:logbook-netty:3.0.0")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("org.testcontainers:junit-jupiter")
