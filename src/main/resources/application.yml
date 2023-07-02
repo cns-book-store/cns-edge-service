@@ -1,0 +1,55 @@
+server:
+  port: 9000
+  netty:
+    connection-timeout: 2s
+    idle-timeout: 15s
+  shutdown: graceful
+spring:
+  cloud:
+    gateway:
+      httpclient:
+        connect-timeout: 2000
+        response-timeout: 5s
+        pool:
+          type: elastic
+          max-idle-time: 15s
+          max-life-time: 60s
+
+      routes:
+        - id: catalog-route
+          uri: ${CATALOG_SERVICE_URL:http://localhost:9001}
+          predicates:
+            - Path=/books/**
+          filters:
+            - RewritePath=/(?<segment>/?.*), /api/v1/$\{segment}
+        - id: order-route
+          uri: ${ORDER_SERVICE_URL:http://localhost:9002}
+          predicates:
+            - Path=/orders/**
+          filters:
+            - RewritePath=/(?<segment>/?.*), /api/v1/$\{segment}
+
+      default-filters:
+        - name: Retry
+          args:
+            retries: 3
+            methods: GET
+            series: SERVER_ERROR
+#            statuses: INTERNAL_SERVER_ERROR
+            exceptions: java.io.IOException, java.util.concurrent.TimeoutException, java.net.ConnectException
+            backoff:
+              firstBackoff: 50ms
+              maxBackOff: 500ms
+              factor: 2
+              basedOnPreviousValue: false
+
+  application:
+    name: cns-edge-service
+  lifecycle:
+    timeout-per-shutdown-phase: 15s
+
+logging:
+  level:
+    inc.evil: debug
+    org.springframework.cloud.gateway: debug
+    org.zalando.logbook: trace
